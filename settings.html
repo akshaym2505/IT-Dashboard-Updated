@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101b31">
+  <title>Settings | IT Support Portal</title>
+  <script>
+    try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('itSupportPortalSettings') || '{}').appearance?.theme || 'light'; }
+    catch (_) { document.documentElement.dataset.theme = 'light'; }
+  </script>
+  <style>
+    :root{--bg:#f3f6fb;--surface:#fff;--surface2:#f7f9fc;--ink:#17243a;--muted:#738198;--line:#e5ebf3;--navy:#101b31;--navy2:#172741;--blue:#4778f5;--cyan:#22b8cf;--green:#15966b;--orange:#c47b17;--red:#cf4558;--shadow:0 12px 32px rgba(31,52,86,.07)}
+    html[data-theme="dark"]{--bg:#0b1220;--surface:#131f33;--surface2:#19283e;--ink:#e8eff9;--muted:#9aacc4;--line:#293a52;--shadow:0 12px 32px rgba(0,0,0,.18)}
+    html[data-accent="teal"]{--blue:#119b91}html[data-accent="violet"]{--blue:#7958d8}
+    html[data-density="compact"] .toggle{padding:9px 0}html[data-density="compact"] .panel{padding-top:19px;padding-bottom:19px}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    .app{display:flex;min-height:100vh}.sidebar{position:sticky;top:0;display:flex;flex:0 0 252px;flex-direction:column;width:252px;height:100vh;padding:25px 16px 18px;background:linear-gradient(180deg,var(--navy),#12223c);color:#dce7f7;overflow-y:auto}
+    .brand{display:flex;align-items:center;gap:12px;padding:0 10px 25px;border-bottom:1px solid #ffffff16}.brand-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,#4e83ff,#20b9cd);font-weight:850;color:white}.brand h2{font-size:16px;margin:0 0 3px;color:#fff}.brand small{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#8fa3c0}
+    .menu-title{margin:24px 10px 10px;color:#7186a5;font-size:10px;font-weight:800;letter-spacing:1.5px}.menu a{display:flex;align-items:center;gap:13px;min-height:44px;margin:4px 0;padding:0 12px;border:1px solid transparent;border-radius:11px;color:#aebdd2;text-decoration:none;font-size:13px;font-weight:650}.menu a:hover{background:#ffffff0e;color:#fff}.menu a.active{color:#fff;border-color:#6597ff33;background:linear-gradient(90deg,#497bf53d,#1fb7cc1a);box-shadow:inset 3px 0 #5b8cff}.menu .ico{width:22px;text-align:center;font-size:16px}.sidebar-foot{margin-top:auto;padding:16px 10px 2px;color:#8fa3c0;font-size:10px;line-height:1.6}
+    .main{flex:1;min-width:0}.topbar{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px clamp(20px,3vw,42px);background:var(--surface);border-bottom:1px solid var(--line)}.topbar h1{font-size:20px;margin:0 0 4px}.topbar p{font-size:12px;margin:0;color:var(--muted)}.top-actions{display:flex;align-items:center;gap:10px}.pill{padding:8px 11px;border:1px solid var(--line);border-radius:30px;color:var(--muted);font-size:11px;font-weight:700}.logout{min-height:37px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}
+    .content{width:min(1450px,100%);margin:auto;padding:30px clamp(20px,3vw,42px) 45px}.page-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}.eyebrow{margin:0 0 7px;color:var(--blue);font-size:10px;font-weight:850;letter-spacing:1.6px;text-transform:uppercase}.page-title h2{font-size:25px;letter-spacing:-.6px;margin:0 0 7px}.page-title p{margin:0;color:var(--muted);font-size:13px}.save-top{padding:10px 16px;background:var(--blue);border:0;border-radius:9px;color:#fff;font-weight:750;cursor:pointer}
+    .settings-layout{display:grid;grid-template-columns:235px minmax(0,1fr);gap:20px;align-items:start}.settings-nav,.panel{border:1px solid var(--line);border-radius:15px;background:var(--surface);box-shadow:var(--shadow)}.settings-nav{padding:10px;position:sticky;top:18px}.settings-nav button{width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;margin:2px 0;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:650;cursor:pointer}.settings-nav button span{width:22px;text-align:center;font-size:15px}.settings-nav button:hover{background:var(--surface2);color:var(--ink)}.settings-nav button.active{background:#4778f51a;color:var(--blue)}
+    .panel{padding:25px;display:none}.panel.active{display:block}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid var(--line)}.panel-head h3{font-size:17px;margin:0 0 5px}.panel-head p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}.tag{padding:6px 9px;border-radius:30px;background:#4778f51a;color:var(--blue);font-size:10px;font-weight:800;white-space:nowrap}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.field{display:flex;flex-direction:column;gap:7px;min-width:0}.field.full{grid-column:1/-1}.field label,.field-title{font-size:12px;font-weight:750;color:var(--ink)}.field small,.hint{font-size:11px;color:var(--muted);line-height:1.5}.field input,.field select,.field textarea{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#7d9cf8;box-shadow:0 0 0 3px #4778f51a}.field input[type=checkbox],.field input[type=radio]{width:17px;min-height:17px;accent-color:var(--blue)}.toggle-list{display:grid;gap:0}.toggle{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px 0;border-bottom:1px solid var(--line)}.toggle:last-child{border-bottom:0}.toggle strong{display:block;font-size:12px;margin-bottom:4px}.toggle small{display:block;color:var(--muted);font-size:11px;line-height:1.45}.switch{display:flex;align-items:center;gap:9px;flex-shrink:0}.switch input{width:18px;height:18px;accent-color:var(--blue)}
+    .panel-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}.save-btn,.secondary-btn,.danger-btn{min-height:39px;padding:0 15px;border-radius:9px;font-size:12px;font-weight:750;cursor:pointer}.save-btn{border:0;background:var(--blue);color:#fff}.secondary-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink)}.danger-btn{border:1px solid #f0cbd1;background:#fff7f8;color:#bf3d50}.save-status{font-size:11px;color:var(--green);min-height:16px}
+    .notice{padding:13px 15px;border:1px solid #eadcb7;border-radius:10px;background:#fff9e9;color:#75551b;font-size:11px;line-height:1.55;margin:16px 0}.dark-notice{border-color:#d8e4f8;background:#f2f7ff;color:#3d5b88}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}table{width:100%;border-collapse:collapse;min-width:600px}th,td{padding:12px 13px;border-bottom:1px solid var(--line);font-size:11px;text-align:left}th{background:var(--surface2);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px}td:first-child{font-weight:700}tr:last-child td{border-bottom:0}td input{width:16px;height:16px;accent-color:var(--blue)}
+    .logo-preview{width:64px;height:64px;display:grid;place-items:center;border:1px dashed var(--line);border-radius:12px;background:var(--surface2);overflow:hidden;color:var(--muted);font-size:11px}.logo-preview img{width:100%;height:100%;object-fit:contain}.file-input{padding:8px!important}.inline-actions{display:flex;flex-wrap:wrap;gap:10px}.language-tip{margin-top:12px;padding:12px;border-radius:9px;background:var(--surface2);color:var(--muted);font-size:11px;line-height:1.5}
+    @media(max-width:900px){.sidebar{flex-basis:210px;width:210px}.settings-layout{grid-template-columns:190px minmax(0,1fr)}.panel{padding:20px}}
+    @media(max-width:700px){.app{display:block}.sidebar{position:relative;width:100%;height:auto;padding:15px}.brand{padding-bottom:14px}.menu-title{margin-top:14px}.menu{display:flex;overflow-x:auto;gap:4px}.menu a{flex:0 0 auto;min-height:38px;padding:0 10px}.sidebar-foot{display:none}.topbar{min-height:70px}.pill{display:none}.content{padding:22px 14px 35px}.page-title{align-items:flex-start;flex-direction:column}.settings-layout{grid-template-columns:1fr}.settings-nav{position:static;display:flex;overflow-x:auto;gap:4px}.settings-nav button{width:auto;flex:0 0 auto;white-space:nowrap}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:17px}.panel-head{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-icon">IT</div><div><h2>IT Support</h2><small>Management Portal</small></div></div>
+    <p class="menu-title">WORKSPACE</p>
+    <nav class="menu" aria-label="Main navigation">
+      <a href="dashboard.html"><span class="ico">▦</span>Dashboard</a>
+      <a href="tickets.html"><span class="ico">🎫</span>Tickets</a>
+      <a href="users.html"><span class="ico">👥</span>Users</a>
+      <a href="assets.html"><span class="ico">💻</span>Assets</a>
+      <a href="remote.html"><span class="ico">🖥</span>Remote Access</a>
+      <a href="settings.html" class="active" aria-current="page"><span class="ico">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-foot">Portal preferences are saved in this browser. Server-side controls will be connected in the backend integration step.</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar"><div><h1>Settings</h1><p>Configure your IT Support Portal preferences</p></div><div class="top-actions"><span class="pill">Admin workspace</span><button class="logout" id="logoutBtn" type="button">Logout</button></div></header>
+    <section class="content">
+      <div class="page-title"><div><p class="eyebrow">PORTAL CONFIGURATION</p><h2>Manage settings</h2><p>Update portal preferences, access options and integrations from one place.</p></div><button class="save-top" type="button" id="saveCurrentTop">Save changes</button></div>
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="Settings categories">
+          <button type="button" class="active" data-target="general"><span>🏢</span>General</button>
+          <button type="button" data-target="appearance"><span>🎨</span>Appearance</button>
+          <button type="button" data-target="display"><span>🖥️</span>Display</button>
+          <button type="button" data-target="notifications"><span>🔔</span>Notifications</button>
+          <button type="button" data-target="remote"><span>🔗</span>Remote settings</button>
+          <button type="button" data-target="users"><span>👥</span>User management</button>
+          <button type="button" data-target="security"><span>🛡️</span>Security</button>
+          <button type="button" data-target="network"><span>🌐</span>Network</button>
+          <button type="button" data-target="email"><span>✉️</span>Email settings</button>
+          <button type="button" data-target="backup"><span>💾</span>Backup</button>
+          <button type="button" data-target="language"><span>🌍</span>Language</button>
+        </nav>
+
+        <div class="panels">
+          <section class="panel active" id="panel-general" data-section="general">
+            <div class="panel-head"><div><h3>General settings</h3><p>Set your portal identity and organization details.</p></div><span class="tag">BASIC</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="siteName">Website name</label><input id="siteName" data-key="siteName" type="text" maxlength="70" placeholder="IT Support Portal"></div>
+              <div class="field"><label for="companyName">Company / organization</label><input id="companyName" data-key="companyName" type="text" maxlength="90" placeholder="Your company"></div>
+              <div class="field full"><label for="logoUrl">Logo image URL</label><input id="logoUrl" data-key="logoUrl" type="url" placeholder="https://example.com/logo.png"><small>Paste a publicly accessible logo URL. The preview updates below.</small></div>
+              <div class="field"><span class="field-title">Logo preview</span><div class="logo-preview" id="logoPreview">No logo</div></div>
+              <div class="field"><label for="timezone">Time zone</label><select id="timezone" data-key="timezone"><option value="Asia/Kolkata">India (Asia/Kolkata)</option><option value="UTC">UTC</option><option value="Asia/Dubai">Dubai</option><option value="Europe/London">London</option><option value="America/New_York">New York</option></select></div>
+            </div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save general settings</button></div>
+          </section>
+
+          <section class="panel" id="panel-appearance" data-section="appearance">
+            <div class="panel-head"><div><h3>Appearance</h3><p>Choose the visual theme for supported portal pages.</p></div><span class="tag">PERSONALIZATION</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="theme">Color theme</label><select id="theme" data-key="theme"><option value="light">Light theme</option><option value="dark">Dark theme</option></select><small>Theme preview applies immediately. Save to keep the preference.</small></div>
+              <div class="field"><label for="accent">Accent color</label><select id="accent" data-key="accent"><option value="blue">Blue</option><option value="teal">Teal</option><option value="violet">Violet</option></select></div>
+            </div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save appearance</button></div>
+          </section>
+
+          <section class="panel" id="panel-display" data-section="display">
+            <div class="panel-head"><div><h3>Display settings</h3><p>Adjust how the portal interface is presented on this browser.</p></div><span class="tag">LAYOUT</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="uiScale">Interface scaling</label><select id="uiScale" data-key="uiScale"><option value="90">90%</option><option value="100">100% (Recommended)</option><option value="110">110%</option><option value="125">125%</option></select></div>
+              <div class="field"><label for="density">Content density</label><select id="density" data-key="density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+              <div class="field"><label for="resolutionMode">Screen layout</label><select id="resolutionMode" data-key="resolutionMode"><option value="responsive">Responsive / Fit to window</option><option value="wide">Wide workspace</option></select><small>Web pages cannot change your physical monitor resolution. Use your operating system display settings for that.</small></div>
+            </div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save display settings</button></div>
+          </section>
+
+          <section class="panel" id="panel-notifications" data-section="notifications">
+            <div class="panel-head"><div><h3>Notifications</h3><p>Choose which portal events should create notification preferences.</p></div><span class="tag">ALERTS</span></div>
+            <div class="toggle-list">
+              <div class="toggle"><div><strong>Email notifications</strong><small>Preference for email alerts when email integration is configured.</small></div><label class="switch"><input type="checkbox" data-key="emailEnabled"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Browser notifications</strong><small>Allow browser notification prompts on supported pages.</small></div><label class="switch"><input type="checkbox" data-key="browserEnabled"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Ticket updates</strong><small>New tickets, assignments and status changes.</small></div><label class="switch"><input type="checkbox" data-key="ticketAlerts"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Device status alerts</strong><small>Device online/offline state changes after monitoring is connected.</small></div><label class="switch"><input type="checkbox" data-key="deviceAlerts"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Remote session alerts</strong><small>Session start, end and approval requests.</small></div><label class="switch"><input type="checkbox" data-key="remoteAlerts"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Daily summary</strong><small>Preference for a daily support summary email.</small></div><label class="switch"><input type="checkbox" data-key="dailySummary"><span>On</span></label></div>
+            </div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save notifications</button></div>
+          </section>
+
+          <section class="panel" id="panel-remote" data-section="remote">
+            <div class="panel-head"><div><h3>Remote access preferences</h3><p>Set safe defaults for authorized remote support sessions.</p></div><span class="tag">REMOTE</span></div>
+            <div class="toggle-list">
+              <div class="toggle"><div><strong>Require end-user consent</strong><small>Keep user approval required before a remote session starts.</small></div><label class="switch"><input type="checkbox" data-key="requireConsent"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Allow clipboard sharing</strong><small>Preference only; the remote agent must enforce this setting.</small></div><label class="switch"><input type="checkbox" data-key="clipboardSharing"><span>On</span></label></div>
+              <div class="toggle"><div><strong>Allow file transfer</strong><small>Preference only; implement server-side authorization before enabling.</small></div><label class="switch"><input type="checkbox" data-key="fileTransfer"><span>On</span></label></div>
+            </div>
+            <div class="form-grid" style="margin-top:18px">
+              <div class="field"><label for="idleTimeout">Idle session timeout</label><select id="idleTimeout" data-key="idleTimeout"><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option><option value="0">Never (not recommended)</option></select></div>
+              <div class="field"><label for="remoteResolution">Remote display preference</label><select id="remoteResolution" data-key="remoteResolution"><option value="fit">Fit to window</option><option value="native">Native resolution</option><option value="low-bandwidth">Low bandwidth</option></select></div>
+            </div>
+            <div class="notice">These are saved preferences only. Consent, session timeout, clipboard and file-transfer restrictions must also be enforced by your FastAPI backend and remote agent.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save remote settings</button></div>
+          </section>
+
+          <section class="panel" id="panel-users" data-section="users">
+            <div class="panel-head"><div><h3>User management</h3><p>Configure a starter permission matrix for portal roles.</p></div><span class="tag">ROLES</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Role</th><th>View tickets</th><th>Manage tickets</th><th>Manage assets</th><th>Remote access</th><th>Manage settings</th></tr></thead><tbody>
+              <tr><td>Administrator</td><td><input type="checkbox" checked disabled aria-label="Administrator view tickets"></td><td><input type="checkbox" checked disabled aria-label="Administrator manage tickets"></td><td><input type="checkbox" checked disabled aria-label="Administrator manage assets"></td><td><input type="checkbox" checked disabled aria-label="Administrator remote access"></td><td><input type="checkbox" checked disabled aria-label="Administrator manage settings"></td></tr>
+              <tr><td>Technician</td><td><input type="checkbox" data-permission="technician.viewTickets"></td><td><input type="checkbox" data-permission="technician.manageTickets"></td><td><input type="checkbox" data-permission="technician.manageAssets"></td><td><input type="checkbox" data-permission="technician.remoteAccess"></td><td><input type="checkbox" data-permission="technician.manageSettings"></td></tr>
+              <tr><td>End user</td><td><input type="checkbox" data-permission="user.viewTickets"></td><td><input type="checkbox" data-permission="user.manageTickets"></td><td><input type="checkbox" data-permission="user.manageAssets"></td><td><input type="checkbox" data-permission="user.remoteAccess"></td><td><input type="checkbox" data-permission="user.manageSettings"></td></tr>
+            </tbody></table></div>
+            <div class="notice">This matrix stores a local configuration template. It does not restrict actual accounts yet. Enforce every role and permission in FastAPI before using it for real access control.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save role preferences</button></div>
+          </section>
+
+          <section class="panel" id="panel-security" data-section="security">
+            <div class="panel-head"><div><h3>Security settings</h3><p>Review account protection preferences and session policy.</p></div><span class="tag">PROTECTION</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="sessionTimeout">Automatic sign-out</label><select id="sessionTimeout" data-key="sessionTimeout"><option value="15">After 15 minutes</option><option value="30">After 30 minutes</option><option value="60">After 1 hour</option><option value="240">After 4 hours</option></select></div>
+              <div class="field"><label for="twoFactorPreference">Two-factor authentication</label><select id="twoFactorPreference" data-key="twoFactorPreference"><option value="not-configured">Not configured</option><option value="planned">Enable when backend is ready</option></select></div>
+            </div>
+            <div class="notice">Password changes and two-factor authentication cannot be securely implemented in a static HTML page. They require authenticated backend endpoints, secure password hashing and an authenticator/OTP verification flow. Do not enter a real password here.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save security preferences</button></div>
+          </section>
+
+          <section class="panel" id="panel-network" data-section="network">
+            <div class="panel-head"><div><h3>Network preferences</h3><p>Set the API address and connection behavior used by this browser.</p></div><span class="tag">CONNECTIVITY</span></div>
+            <div class="form-grid">
+              <div class="field full"><label for="apiBaseUrl">Backend API base URL</label><input id="apiBaseUrl" data-key="apiBaseUrl" type="url" placeholder="http://127.0.0.1:8000"><small>Use the URL where your FastAPI service is reachable from this browser.</small></div>
+              <div class="field"><label for="connectionMode">Preferred connection</label><select id="connectionMode" data-key="connectionMode"><option value="http">HTTP polling</option><option value="websocket">WebSocket (when backend supports it)</option></select></div>
+              <div class="field"><label for="requestTimeout">Request timeout</label><select id="requestTimeout" data-key="requestTimeout"><option value="10">10 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select></div>
+            </div>
+            <div class="notice">Changing this value does not reconfigure the server. We will connect it to your app.js/FastAPI API client in a later step.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save network settings</button></div>
+          </section>
+
+          <section class="panel" id="panel-email" data-section="email">
+            <div class="panel-head"><div><h3>Email / SMTP settings</h3><p>Enter your mail-server details for future notification integration.</p></div><span class="tag">EMAIL</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="smtpHost">SMTP server</label><input id="smtpHost" data-key="smtpHost" type="text" placeholder="smtp.example.com"></div>
+              <div class="field"><label for="smtpPort">SMTP port</label><input id="smtpPort" data-key="smtpPort" type="number" min="1" max="65535" placeholder="587"></div>
+              <div class="field"><label for="smtpUsername">SMTP username</label><input id="smtpUsername" data-key="smtpUsername" type="text" autocomplete="off"></div>
+              <div class="field"><label for="senderEmail">From email address</label><input id="senderEmail" data-key="senderEmail" type="email" placeholder="support@example.com"></div>
+              <div class="field"><label for="smtpEncryption">Encryption</label><select id="smtpEncryption" data-key="smtpEncryption"><option value="starttls">STARTTLS</option><option value="ssl">SSL/TLS</option><option value="none">None (not recommended)</option></select></div>
+              <div class="field"><label for="smtpPassword">SMTP password / app password</label><input id="smtpPassword" type="password" autocomplete="new-password" placeholder="Not saved in this browser"><small>For safety, this page never stores the SMTP password.</small></div>
+            </div>
+            <div class="notice">SMTP credentials must be stored securely on the server (environment variables or a secret manager), not in HTML or browser local storage. Test connection will be implemented through FastAPI.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><div class="inline-actions"><button class="secondary-btn" type="button" id="testSmtp">Test connection</button><button class="save-btn" type="button" data-save>Save SMTP details</button></div></div>
+          </section>
+
+          <section class="panel" id="panel-backup" data-section="backup">
+            <div class="panel-head"><div><h3>Backup and restore</h3><p>Export or import this browser's portal settings configuration.</p></div><span class="tag">DATA</span></div>
+            <div class="notice dark-notice"><strong>Current scope:</strong> this tool backs up only the settings saved by this page. It does not back up tickets, users, assets, database records or remote-agent data. Database backup will be added with the backend.</div>
+            <div class="field full"><span class="field-title">Settings backup</span><p class="hint">Download your settings as a JSON file, or restore settings from a JSON backup created here.</p><div class="inline-actions"><button class="save-btn" type="button" id="exportBackup">Export settings backup</button><label class="secondary-btn" for="importBackup" style="display:inline-flex;align-items:center">Choose backup file</label><input id="importBackup" type="file" accept="application/json,.json" hidden></div></div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite" id="backupStatus"></span><button class="danger-btn" type="button" id="resetSettings">Reset saved preferences</button></div>
+          </section>
+
+          <section class="panel" id="panel-language" data-section="language">
+            <div class="panel-head"><div><h3>Language</h3><p>Choose the preferred portal language.</p></div><span class="tag">LOCALIZATION</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="language">Portal language</label><select id="language" data-key="language"><option value="en">English</option><option value="hi">Hindi</option><option value="gu">Gujarati</option></select></div>
+            </div>
+            <div class="language-tip">Your language preference is saved now. Full translation of every page will be connected in a later localization step.</div>
+            <div class="panel-actions"><span class="save-status" aria-live="polite"></span><button class="save-btn" type="button" data-save>Save language</button></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'itSupportPortalSettings';
+  const defaults = {
+    general: {siteName:'IT Support Portal', companyName:'', logoUrl:'', timezone:'Asia/Kolkata'},
+    appearance: {theme:'light', accent:'blue'},
+    display: {uiScale:'100', density:'comfortable', resolutionMode:'responsive'},
+    notifications: {emailEnabled:true, browserEnabled:false, ticketAlerts:true, deviceAlerts:true, remoteAlerts:true, dailySummary:false},
+    remote: {requireConsent:true, clipboardSharing:false, fileTransfer:false, idleTimeout:'15', remoteResolution:'fit'},
+    users: {},
+    security: {sessionTimeout:'30', twoFactorPreference:'not-configured'},
+    network: {apiBaseUrl:'http://127.0.0.1:8000', connectionMode:'websocket', requestTimeout:'30'},
+    email: {smtpHost:'', smtpPort:'587', smtpUsername:'', senderEmail:'', smtpEncryption:'starttls'},
+    language: {language:'en'},
+    permissions: { 'technician.viewTickets':true, 'technician.manageTickets':true, 'technician.manageAssets':true, 'technician.remoteAccess':false, 'technician.manageSettings':false, 'user.viewTickets':true, 'user.manageTickets':false, 'user.manageAssets':false, 'user.remoteAccess':false, 'user.manageSettings':false }
+  };
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const merge = (target, source) => {
+    if (!source || typeof source !== 'object') return target;
+    Object.keys(source).forEach(key => {
+      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        target[key] = merge(target[key] && typeof target[key] === 'object' ? target[key] : {}, source[key]);
+      } else if (key in target) target[key] = source[key];
+    });
+    return target;
+  };
+  let settings = clone(defaults);
+  try { settings = merge(settings, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch (error) { console.warn('Could not read saved settings.', error); }
+  const saveStorage = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  const applyTheme = () => {
+    document.documentElement.dataset.theme = settings.appearance?.theme || 'light';
+    document.documentElement.dataset.accent = settings.appearance?.accent || 'blue';
+    document.documentElement.dataset.density = settings.display?.density || 'comfortable';
+    document.body.style.zoom = (Number(settings.display?.uiScale || 100)) + '%';
+  };
+  const panels = [...document.querySelectorAll('.panel[data-section]')];
+  const navButtons = [...document.querySelectorAll('.settings-nav [data-target]')];
+  let activeSection = 'general';
+  function showSection(name) {
+    if (!panels.some(panel => panel.dataset.section === name)) return;
+    activeSection = name;
+    panels.forEach(panel => panel.classList.toggle('active', panel.dataset.section === name));
+    navButtons.forEach(button => button.classList.toggle('active', button.dataset.target === name));
+  }
+  navButtons.forEach(button => button.addEventListener('click', () => showSection(button.dataset.target)));
+
+  function populate() {
+    document.querySelectorAll('.panel[data-section]').forEach(panel => {
+      const section = panel.dataset.section;
+      panel.querySelectorAll('[data-key]').forEach(control => {
+        const value = settings[section]?.[control.dataset.key];
+        if (value === undefined) return;
+        if (control.type === 'checkbox') control.checked = Boolean(value);
+        else control.value = String(value);
+      });
+    });
+    document.querySelectorAll('[data-permission]').forEach(control => {
+      control.checked = Boolean(settings.permissions?.[control.dataset.permission]);
+    });
+    updateLogoPreview();
+    applyTheme();
+    document.title = (settings.general.siteName || 'IT Support Portal') + ' | Settings';
+    const brandName = document.querySelector('.brand h2');
+    if (brandName) brandName.textContent = settings.general.siteName || 'IT Support';
+  }
+  function updateLogoPreview() {
+    const preview = document.getElementById('logoPreview');
+    const url = document.getElementById('logoUrl')?.value.trim();
+    if (!preview) return;
+    preview.innerHTML = '';
+    if (!url) { preview.textContent = 'No logo'; return; }
+    const img = document.createElement('img');
+    img.alt = 'Portal logo preview'; img.src = url;
+    img.onerror = () => { preview.textContent = 'Preview unavailable'; };
+    preview.appendChild(img);
+  }
+  document.getElementById('logoUrl').addEventListener('input', updateLogoPreview);
+  document.getElementById('theme').addEventListener('change', event => {
+    document.documentElement.dataset.theme = event.target.value;
+  });
+
+  function savePanel(panel) {
+    const section = panel.dataset.section;
+    settings[section] = settings[section] || {};
+    panel.querySelectorAll('[data-key]').forEach(control => {
+      settings[section][control.dataset.key] = control.type === 'checkbox' ? control.checked : control.value.trim();
+    });
+    if (section === 'users') {
+      settings.permissions = settings.permissions || {};
+      panel.querySelectorAll('[data-permission]').forEach(control => {
+        settings.permissions[control.dataset.permission] = control.checked;
+      });
+    }
+    try {
+      saveStorage();
+      applyTheme();
+      if (section === 'general') {
+        document.title = (settings.general.siteName || 'IT Support Portal') + ' | Settings';
+        const brandName = document.querySelector('.brand h2');
+        if (brandName) brandName.textContent = settings.general.siteName || 'IT Support';
+      }
+    const brandName = document.querySelector('.brand h2');
+    if (brandName) brandName.textContent = settings.general.siteName || 'IT Support';
+      const status = panel.querySelector('.save-status');
+      if (status) status.textContent = 'Saved in this browser.';
+      if (section === 'email') document.getElementById('smtpPassword').value = '';
+    } catch (error) {
+      const status = panel.querySelector('.save-status');
+      if (status) status.textContent = 'Could not save. Browser storage may be full or disabled.';
+      console.error(error);
+    }
+  }
+  document.querySelectorAll('[data-save]').forEach(button => button.addEventListener('click', () => savePanel(button.closest('.panel'))));
+  document.getElementById('saveCurrentTop').addEventListener('click', () => {
+    const panel = document.querySelector('.panel[data-section="' + activeSection + '"]');
+    if (panel) savePanel(panel);
+  });
+  document.getElementById('testSmtp').addEventListener('click', () => {
+    alert('SMTP connection testing needs a FastAPI backend endpoint. No credentials have been sent or stored.');
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    if (typeof window.logout === 'function') window.logout();
+    else if (confirm('Log out of the portal?')) window.location.href = 'index.html';
+  });
+  document.getElementById('exportBackup').addEventListener('click', () => {
+    const payload = {product:'IT Support Portal settings', version:1, exportedAt:new Date().toISOString(), settings};
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a'); link.href = url; link.download = 'it-support-settings-backup.json';
+    document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+    document.getElementById('backupStatus').textContent = 'Settings backup downloaded.';
+  });
+  document.getElementById('importBackup').addEventListener('change', async event => {
+    const file = event.target.files?.[0]; if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      const incoming = parsed.settings || parsed;
+      settings = merge(clone(defaults), incoming);
+      saveStorage(); populate();
+      document.getElementById('backupStatus').textContent = 'Settings restored from backup.';
+    } catch (error) {
+      document.getElementById('backupStatus').textContent = 'Invalid settings backup file.';
+    } finally { event.target.value = ''; }
+  });
+  document.getElementById('resetSettings').addEventListener('click', () => {
+    if (!confirm('Reset all saved portal preferences in this browser?')) return;
+    settings = clone(defaults); saveStorage(); populate();
+    document.getElementById('backupStatus').textContent = 'Preferences reset to defaults.';
+  });
+  populate();
+})();
+</script>
+</body>
+</html>

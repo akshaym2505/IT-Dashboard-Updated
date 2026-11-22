@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101b31">
+    <script>
+    try {
+        const savedPortalSettings = JSON.parse(localStorage.getItem("itSupportPortalSettings") || "{}");
+        document.documentElement.dataset.theme = savedPortalSettings.appearance?.theme || "light";
+        const dashAccents = { blue: "#4778f5", teal: "#119b91", violet: "#7958d8" };
+        document.documentElement.style.setProperty("--dash-blue", dashAccents[savedPortalSettings.appearance?.accent] || dashAccents.blue);
+    } catch (_) { document.documentElement.dataset.theme = "light"; }
+    </script>
+    <title>IT Support Portal | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Dashboard-only design layer. Keeps the shared style.css and app.js. */
+        :root {
+            --dash-bg: #f3f6fb;
+            --dash-card: #ffffff;
+            --dash-ink: #17243a;
+            --dash-muted: #718096;
+            --dash-border: #e7edf5;
+            --dash-navy: #101b31;
+            --dash-navy-2: #172741;
+            --dash-blue: #4778f5;
+            --dash-cyan: #22b8cf;
+            --dash-green: #17a673;
+            --dash-orange: #f2a33a;
+            --dash-red: #e45b68;
+            --dash-shadow: 0 12px 32px rgba(31, 52, 86, .07);
+        }
+
+        * { box-sizing: border-box; }
+        body.dashboard-page {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--dash-ink);
+            background: var(--dash-bg);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .dashboard-page .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+        .dashboard-page .sidebar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex: 0 0 252px;
+            flex-direction: column;
+            width: 252px;
+            height: 100vh;
+            padding: 25px 16px 18px;
+            overflow-y: auto;
+            color: #dce7f7;
+            background: linear-gradient(180deg, var(--dash-navy) 0%, #12223c 100%);
+            border-right: 1px solid rgba(255,255,255,.06);
+        }
+        .dashboard-page .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px 27px;
+            border-bottom: 1px solid rgba(255,255,255,.09);
+        }
+        .dashboard-page .logo-icon {
+            display: grid;
+            place-items: center;
+            width: 43px;
+            height: 43px;
+            border-radius: 13px;
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            background: linear-gradient(135deg, #4e83ff, #20b9cd);
+            box-shadow: 0 8px 20px rgba(47, 132, 239, .28);
+        }
+        .dashboard-page .sidebar-logo h2 {
+            margin: 0 0 3px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 750;
+            letter-spacing: -.2px;
+        }
+        .dashboard-page .sidebar-logo span {
+            color: #8fa3c0;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .dashboard-page .sidebar-menu { padding-top: 24px; }
+        .dashboard-page .menu-title {
+            margin: 0 10px 11px;
+            color: #7186a5;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+        .dashboard-page .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-height: 46px;
+            margin: 4px 0;
+            padding: 0 12px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: #aebdd2;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background .18s ease, color .18s ease, transform .18s ease;
+        }
+        .dashboard-page .menu-item:hover {
+            color: #fff;
+            background: rgba(255,255,255,.07);
+            transform: translateX(2px);
+        }
+        .dashboard-page .menu-item.active {
+            color: #fff;
+            border-color: rgba(101,151,255,.2);
+            background: linear-gradient(90deg, rgba(73,123,245,.24), rgba(31,183,204,.10));
+            box-shadow: inset 3px 0 0 #5b8cff;
+        }
+        .dashboard-page .menu-icon {
+            display: grid;
+            place-items: center;
+            width: 22px;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .dashboard-page .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 10px 2px;
+        }
+        .dashboard-page .sidebar-note {
+            padding: 13px;
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 12px;
+            background: rgba(255,255,255,.045);
+        }
+        .dashboard-page .sidebar-note strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #e8f0fc;
+            font-size: 11px;
+        }
+        .dashboard-page .sidebar-note span {
+            color: #8fa3c0;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+        .dashboard-page .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .dashboard-page .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 82px;
+            padding: 15px clamp(20px, 3vw, 42px);
+            border-bottom: 1px solid var(--dash-border);
+            background: rgba(255,255,255,.92);
+        }
+        .dashboard-page .header-left h1 {
+            margin: 0 0 5px;
+            color: var(--dash-ink);
+            font-size: 19px;
+            font-weight: 750;
+            letter-spacing: -.4px;
+        }
+        .dashboard-page .header-left p {
+            margin: 0;
+            color: var(--dash-muted);
+            font-size: 12px;
+        }
+        .dashboard-page .header-right {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+        .dashboard-page .header-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 11px;
+            border: 1px solid #d9eee7;
+            border-radius: 30px;
+            color: #16825e;
+            background: #f0fbf6;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .dashboard-page .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #17a673;
+        }
+        .dashboard-page .logout-btn {
+            min-height: 37px;
+            padding: 0 14px;
+            border: 1px solid #e3e9f1;
+            border-radius: 9px;
+            color: #43536b;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+        .dashboard-page .logout-btn:hover {
+            color: #c43e50;
+            border-color: #f2cbd1;
+            background: #fff8f9;
+        }
+        .dashboard-page .dashboard-content {
+            width: min(1500px, 100%);
+            margin: 0 auto;
+            padding: 30px clamp(20px, 3vw, 42px) 42px;
+        }
+        .dashboard-page .welcome-panel {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 174px;
+            padding: 28px 32px;
+            overflow: hidden;
+            border-radius: 18px;
+            color: #fff;
+            background: linear-gradient(112deg, #152b4a 0%, #1d4770 56%, #176a7b 100%);
+            box-shadow: 0 16px 36px rgba(26, 69, 112, .17);
+        }
+        .dashboard-page .welcome-panel::before,
+        .dashboard-page .welcome-panel::after {
+            position: absolute;
+            content: "";
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,.13);
+            border-radius: 50%;
+        }
+        .dashboard-page .welcome-panel::before {
+            width: 300px; height: 300px; right: 95px; top: -174px;
+            box-shadow: 0 0 0 24px rgba(255,255,255,.025), 0 0 0 52px rgba(255,255,255,.025);
+        }
+        .dashboard-page .welcome-panel::after {
+            width: 190px; height: 190px; right: -42px; bottom: -125px;
+            box-shadow: 0 0 0 22px rgba(255,255,255,.035), 0 0 0 44px rgba(255,255,255,.025);
+        }
+        .dashboard-page .welcome-copy,
+        .dashboard-page .welcome-actions { position: relative; z-index: 1; }
+        .dashboard-page .eyebrow {
+            margin: 0 0 10px;
+            color: #9bd9e4;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+        .dashboard-page .welcome-panel h2 {
+            margin: 0 0 9px;
+            color: #fff;
+            font-size: clamp(23px, 3vw, 30px);
+            font-weight: 760;
+            letter-spacing: -.8px;
+        }
+        .dashboard-page .welcome-panel p {
+            max-width: 550px;
+            margin: 0;
+            color: #c1d5e8;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .dashboard-page .welcome-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .dashboard-page .hero-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 0 15px;
+            border: 1px solid rgba(255,255,255,.3);
+            border-radius: 9px;
+            color: #fff;
+            background: rgba(255,255,255,.1);
+            font-size: 11px;
+            font-weight: 750;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: .18s ease;
+        }
+        .dashboard-page .hero-link.primary {
+            color: #15304e;
+            border-color: #fff;
+            background: #fff;
+        }
+        .dashboard-page .hero-link:hover { transform: translateY(-2px); }
+        .dashboard-page .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 28px 0 14px;
+        }
+        .dashboard-page .section-heading h2 {
+            margin: 0 0 5px;
+            color: var(--dash-ink);
+            font-size: 16px;
+            font-weight: 780;
+            letter-spacing: -.3px;
+        }
+        .dashboard-page .section-heading p {
+            margin: 0;
+            color: var(--dash-muted);
+            font-size: 11px;
+        }
+        .dashboard-page .section-tag {
+            color: #8a98aa;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .dashboard-page .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+        .dashboard-page .stat-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+            min-height: 112px;
+            padding: 19px;
+            border: 1px solid var(--dash-border);
+            border-radius: 14px;
+            background: var(--dash-card);
+            box-shadow: var(--dash-shadow);
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .dashboard-page .stat-card:hover,
+        .dashboard-page .mini-stat:hover,
+        .dashboard-page .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 34px rgba(31,52,86,.10);
+        }
+        .dashboard-page .stat-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 46px;
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            font-size: 19px;
+        }
+        .dashboard-page .stat-icon.blue { color: #4778f5; background: #edf2ff; }
+        .dashboard-page .stat-icon.orange { color: #d9881f; background: #fff5e7; }
+        .dashboard-page .stat-icon.red { color: #df5867; background: #fff0f2; }
+        .dashboard-page .stat-information { min-width: 0; }
+        .dashboard-page .stat-information span {
+            display: block;
+            margin-bottom: 5px;
+            color: #7c899b;
+            font-size: 11px;
+            font-weight: 650;
+        }
+        .dashboard-page .stat-information h3 {
+            margin: 0 0 4px;
+            color: var(--dash-ink);
+            font-size: 25px;
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -.8px;
+        }
+        .dashboard-page .stat-information small { font-size: 10px; font-weight: 650; }
+        .dashboard-page .stat-information .positive { color: #168c67; }
+        .dashboard-page .stat-information .warning { color: #c8872a; }
+        .dashboard-page .stat-information .danger { color: #d35463; }
+        .dashboard-page .endpoint-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 13px;
+        }
+        .dashboard-page .mini-stat {
+            min-width: 0;
+            padding: 17px 17px 15px;
+            border: 1px solid var(--dash-border);
+            border-radius: 13px;
+            background: #fff;
+            box-shadow: var(--dash-shadow);
+            transition: .18s ease;
+        }
+        .dashboard-page .mini-stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 13px;
+        }
+        .dashboard-page .mini-stat-label { color: #7c899b; font-size: 11px; font-weight: 650; }
+        .dashboard-page .mini-stat-icon {
+            display: grid;
+            place-items: center;
+            width: 31px;
+            height: 31px;
+            border-radius: 9px;
+            color: #4778f5;
+            background: #edf2ff;
+            font-size: 14px;
+        }
+        .dashboard-page .mini-stat-value {
+            margin-bottom: 5px;
+            color: var(--dash-ink);
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -.6px;
+        }
+        .dashboard-page .mini-stat-note { color: #9aa5b4; font-size: 9px; }
+        .dashboard-page .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr);
+            gap: 16px;
+            margin-top: 24px;
+            align-items: start;
+        }
+        .dashboard-page .dashboard-card {
+            min-width: 0;
+            overflow: hidden;
+            border: 1px solid var(--dash-border);
+            border-radius: 14px;
+            background: var(--dash-card);
+            box-shadow: var(--dash-shadow);
+        }
+        .dashboard-page .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 19px;
+            border-bottom: 1px solid #edf1f6;
+        }
+        .dashboard-page .card-header h3 {
+            margin: 0 0 5px;
+            color: var(--dash-ink);
+            font-size: 13px;
+            font-weight: 780;
+        }
+        .dashboard-page .card-header p {
+            margin: 0;
+            color: #8a97a9;
+            font-size: 10px;
+        }
+        .dashboard-page .card-header a {
+            color: #4778f5;
+            font-size: 10px;
+            font-weight: 750;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .dashboard-page .card-header a:hover { text-decoration: underline; }
+        .dashboard-page .table-container { width: 100%; overflow-x: auto; }
+        .dashboard-page table { width: 100%; border-collapse: collapse; text-align: left; }
+        .dashboard-page th {
+            padding: 12px 15px;
+            color: #8491a3;
+            background: #fafbfd;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .dashboard-page td {
+            padding: 14px 15px;
+            border-top: 1px solid #eff2f6;
+            color: #526176;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .dashboard-page .right-stack { display: grid; gap: 16px; }
+        .dashboard-page .service-list { padding: 4px 18px 13px; }
+        .dashboard-page .service-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eff2f6;
+        }
+        .dashboard-page .service-row:last-child { border-bottom: 0; }
+        .dashboard-page .service-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .dashboard-page .service-symbol {
+            display: grid;
+            place-items: center;
+            flex: 0 0 31px;
+            height: 31px;
+            border-radius: 9px;
+            color: #6683ad;
+            background: #f0f4fa;
+            font-size: 12px;
+        }
+        .dashboard-page .service-name strong { display: block; color: #45546a; font-size: 10px; }
+        .dashboard-page .service-name small { display: block; margin-top: 3px; color: #9aa5b4; font-size: 9px; }
+        .dashboard-page .pending-label {
+            padding: 5px 7px;
+            border-radius: 20px;
+            color: #9a763b;
+            background: #fff7e9;
+            font-size: 8px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .dashboard-page .module-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 15px; }
+        .dashboard-page .module-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid #edf1f6;
+            border-radius: 11px;
+            color: inherit;
+            background: #fff;
+            text-decoration: none;
+            transition: .18s ease;
+        }
+        .dashboard-page .module-card:hover { border-color: #dce6fa; }
+        .dashboard-page .module-icon {
+            display: grid;
+            place-items: center;
+            flex: 0 0 34px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            color: #4778f5;
+            background: #edf2ff;
+            font-size: 14px;
+        }
+        .dashboard-page .module-card strong { display: block; color: #41516a; font-size: 10px; }
+        .dashboard-page .module-card small { display: block; margin-top: 3px; color: #96a1b0; font-size: 9px; }
+        .dashboard-page .empty-state {
+            padding: 27px 18px 29px;
+            color: #98a4b4;
+            text-align: center;
+            font-size: 11px;
+        }
+        .dashboard-page .empty-state .empty-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            margin: 0 auto 10px;
+            border-radius: 12px;
+            color: #7292c4;
+            background: #f0f5fc;
+            font-size: 17px;
+        }
+        .dashboard-page .footer-note {
+            margin: 18px 2px 0;
+            color: #9aa5b4;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-page .sidebar { flex-basis: 220px; width: 220px; }
+            .dashboard-page .endpoint-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dashboard-page .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        @media (max-width: 720px) {
+            .dashboard-page .dashboard-container { display: block; }
+            .dashboard-page .sidebar { position: relative; width: 100%; height: auto; padding: 13px 14px; }
+            .dashboard-page .sidebar-logo { padding: 0 5px 12px; }
+            .dashboard-page .sidebar-menu { display: flex; gap: 5px; padding-top: 12px; overflow-x: auto; }
+            .dashboard-page .menu-title, .dashboard-page .sidebar-bottom { display: none; }
+            .dashboard-page .menu-item { flex: 0 0 auto; min-height: 39px; margin: 0; padding: 0 10px; font-size: 11px; }
+            .dashboard-page .menu-icon { font-size: 13px; }
+            .dashboard-page .top-header { min-height: 70px; padding: 12px 17px; }
+            .dashboard-page .header-status { display: none; }
+            .dashboard-page .dashboard-content { padding: 19px 15px 30px; }
+            .dashboard-page .welcome-panel { display: block; min-height: 0; padding: 23px 21px; }
+            .dashboard-page .welcome-actions { margin-top: 18px; }
+            .dashboard-page .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+            .dashboard-page .stat-card { min-height: 88px; }
+            .dashboard-page .endpoint-grid { gap: 9px; }
+            .dashboard-page .mini-stat { padding: 13px; }
+            .dashboard-page .mini-stat-value { font-size: 20px; }
+            .dashboard-page .section-heading { margin-top: 23px; }
+            .dashboard-page .module-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 390px) {
+            .dashboard-page .endpoint-grid { grid-template-columns: 1fr 1fr; }
+            .dashboard-page .module-grid { grid-template-columns: 1fr; }
+            .dashboard-page .hero-link { flex: 1; }
+        }
+
+        /* Theme preference saved from settings.html */
+        html[data-theme="dark"] body.dashboard-page { background: #0b1220; color: #e5edf8; }
+        html[data-theme="dark"] .dashboard-page .top-header { background: #111c2e; border-color: #26354b; }
+        html[data-theme="dark"] .dashboard-page .header-left h1 { color: #eaf1fb; }
+        html[data-theme="dark"] .dashboard-page .dashboard-card,
+        html[data-theme="dark"] .dashboard-page .stat-card,
+        html[data-theme="dark"] .dashboard-page .mini-stat-card { background: #131f33; border-color: #26354b; color: #e5edf8; }
+        html[data-theme="dark"] .dashboard-page .section-heading h2,
+        html[data-theme="dark"] .dashboard-page .card-header h3,
+        html[data-theme="dark"] .dashboard-page .stat-information h3 { color: #eaf1fb; }
+        html[data-theme="dark"] .dashboard-page .section-heading p,
+        html[data-theme="dark"] .dashboard-page .card-header p,
+        html[data-theme="dark"] .dashboard-page .footer-note { color: #94a7c1; }
+        html[data-theme="dark"] .dashboard-page table th { background: #19283e; color: #afc0d5; }
+        html[data-theme="dark"] .dashboard-page table td { border-color: #26354b; color: #d8e3f1; }
+        html[data-theme="dark"] .dashboard-page .module-card { background: #17263b; border-color: #2b3d56; color: #e5edf8; }
+        html[data-theme="dark"] .dashboard-page .logout-btn { background: #17263b; color: #dce7f5; border-color: #2b3d56; }
+
+    </style>
+</head>
+<body class="dashboard-page">
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">IT</div>
+            <div>
+                <h2>IT Support</h2>
+                <span>Management Portal</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu" aria-label="Main navigation">
+            <p class="menu-title">WORKSPACE</p>
+            <a href="dashboard.html" class="menu-item active" aria-current="page"><span class="menu-icon">▦</span><span>Dashboard</span></a>
+            <a href="tickets.html" class="menu-item"><span class="menu-icon">🎫</span><span>Tickets</span></a>
+            <a href="users.html" class="menu-item"><span class="menu-icon">👥</span><span>Users</span></a>
+            <a href="assets.html" class="menu-item"><span class="menu-icon">💻</span><span>Assets</span></a>
+            <a href="remote.html" class="menu-item"><span class="menu-icon">🖥</span><span>Remote Access</span></a>
+            <a href="settings.html" class="menu-item"><span class="menu-icon">⚙️</span><span>Settings</span></a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-note">
+                <strong>IT Operations Center</strong>
+                <span>Manage support requests, company assets and authorized remote devices from one workspace.</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <h1>Dashboard</h1>
+                <p>Welcome back, <span id="welcomeUser">Admin</span>. Here's your support workspace.</p>
+            </div>
+            <div class="header-right">
+                <span class="header-status"><span class="status-dot"></span> Portal workspace</span>
+                <button class="logout-btn" id="logoutBtn" type="button">Logout</button>
+            </div>
+        </header>
+
+        <section class="dashboard-content">
+            <section class="welcome-panel" aria-labelledby="welcomeTitle">
+                <div class="welcome-copy">
+                    <p class="eyebrow">IT OPERATIONS CENTER</p>
+                    <h2 id="welcomeTitle">Everything under control.</h2>
+                    <p>Keep an eye on support tickets, company assets and remote endpoints from one clear view.</p>
+                </div>
+                <div class="welcome-actions">
+                    <a class="hero-link primary" href="tickets.html">Manage tickets <span aria-hidden="true">→</span></a>
+                    <a class="hero-link" href="remote.html">Remote access <span aria-hidden="true">→</span></a>
+                </div>
+            </section>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Support overview</h2>
+                    <p>Ticket counts are populated by your existing dashboard JavaScript.</p>
+                </div>
+                <span class="section-tag">TICKET SUMMARY</span>
+            </div>
+
+            <!-- Keep these existing IDs: js/app.js can continue updating them. -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue" aria-hidden="true">▤</div>
+                    <div class="stat-information">
+                        <span>Total Tickets</span>
+                        <h3 id="count-total">0</h3>
+                        <small class="positive">All recorded requests</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange" aria-hidden="true">◷</div>
+                    <div class="stat-information">
+                        <span>Open Tickets</span>
+                        <h3 id="count-open">0</h3>
+                        <small class="warning">Require attention</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red" aria-hidden="true">!</div>
+                    <div class="stat-information">
+                        <span>Critical Issues</span>
+                        <h3 id="count-critical">0</h3>
+                        <small class="danger">High-priority requests</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Device & remote access</h2>
+                    <p>These values will be connected to registered devices in a later step.</p>
+                </div>
+                <span class="section-tag">ENDPOINTS</span>
+            </div>
+            <div class="endpoint-grid">
+                <article class="mini-stat">
+                    <div class="mini-stat-top"><span class="mini-stat-label">Total devices</span><span class="mini-stat-icon">▣</span></div>
+                    <div class="mini-stat-value" id="device-total">—</div>
+                    <div class="mini-stat-note">Awaiting device data</div>
+                </article>
+                <article class="mini-stat">
+                    <div class="mini-stat-top"><span class="mini-stat-label">Online devices</span><span class="mini-stat-icon">⌁</span></div>
+                    <div class="mini-stat-value" id="device-online">—</div>
+                    <div class="mini-stat-note">Awaiting device heartbeat</div>
+                </article>
+                <article class="mini-stat">
+                    <div class="mini-stat-top"><span class="mini-stat-label">Offline devices</span><span class="mini-stat-icon">◌</span></div>
+                    <div class="mini-stat-value" id="device-offline">—</div>
+                    <div class="mini-stat-note">Awaiting device heartbeat</div>
+                </article>
+                <article class="mini-stat">
+                    <div class="mini-stat-top"><span class="mini-stat-label">Active sessions</span><span class="mini-stat-icon">▣</span></div>
+                    <div class="mini-stat-value" id="remote-active">—</div>
+                    <div class="mini-stat-note">Remote session integration pending</div>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <section class="dashboard-card tickets-card" aria-labelledby="recentTicketsTitle">
+                    <div class="card-header">
+                        <div>
+                            <h3 id="recentTicketsTitle">Recent tickets</h3>
+                            <p>Latest support requests from your team</p>
+                        </div>
+                        <a href="tickets.html">View all tickets →</a>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Issue</th>
+                                    <th>User</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <!-- Keep this ID: js/app.js injects recent ticket rows here. -->
+                            <tbody id="recentTicketTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="recentTicketEmpty">
+                        <div class="empty-icon">▤</div>
+                        Recent ticket records will appear here when available.
+                    </div>
+                </section>
+
+                <div class="right-stack">
+                    <section class="dashboard-card" aria-labelledby="systemHealthTitle">
+                        <div class="card-header">
+                            <div>
+                                <h3 id="systemHealthTitle">System health</h3>
+                                <p>Endpoint telemetry status</p>
+                            </div>
+                        </div>
+                        <div class="service-list">
+                            <div class="service-row">
+                                <div class="service-name"><span class="service-symbol">CPU</span><span><strong>Processor</strong><small id="health-cpu">No telemetry yet</small></span></div>
+                                <span class="pending-label">Not connected</span>
+                            </div>
+                            <div class="service-row">
+                                <div class="service-name"><span class="service-symbol">RAM</span><span><strong>Memory</strong><small id="health-ram">No telemetry yet</small></span></div>
+                                <span class="pending-label">Not connected</span>
+                            </div>
+                            <div class="service-row">
+                                <div class="service-name"><span class="service-symbol">SSD</span><span><strong>Storage</strong><small id="health-disk">No telemetry yet</small></span></div>
+                                <span class="pending-label">Not connected</span>
+                            </div>
+                            <div class="service-row">
+                                <div class="service-name"><span class="service-symbol">NET</span><span><strong>Network</strong><small id="health-network">No telemetry yet</small></span></div>
+                                <span class="pending-label">Not connected</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="dashboard-card" aria-labelledby="quickAccessTitle">
+                        <div class="card-header">
+                            <div>
+                                <h3 id="quickAccessTitle">Quick access</h3>
+                                <p>Jump to a workspace</p>
+                            </div>
+                        </div>
+                        <div class="module-grid">
+                            <a class="module-card" href="assets.html"><span class="module-icon">💻</span><span><strong>Assets</strong><small>Device inventory</small></span></a>
+                            <a class="module-card" href="remote.html"><span class="module-icon">🖥</span><span><strong>Remote access</strong><small>Registered endpoints</small></span></a>
+                            <a class="module-card" href="users.html"><span class="module-icon">👥</span><span><strong>Users</strong><small>People & accounts</small></span></a>
+                            <a class="module-card" href="tickets.html"><span class="module-icon">🎫</span><span><strong>Tickets</strong><small>Support queue</small></span></a>
+                            <a class="module-card" href="settings.html"><span class="module-icon">⚙️</span><span><strong>Settings</strong><small>Portal preferences</small></span></a>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <p class="footer-note">Dashboard layout updated. Device counts, remote sessions and system health are display placeholders until their backend APIs are connected.</p>
+        </section>
+    </main>
+</div>
+<script src="js/app.js"></script>
+<script>
+    // Hide the recent-ticket empty message once app.js adds ticket rows.
+    (function () {
+        const tableBody = document.getElementById('recentTicketTableBody');
+        const emptyMessage = document.getElementById('recentTicketEmpty');
+        if (!tableBody || !emptyMessage) return;
+        const updateEmptyState = () => {
+            emptyMessage.hidden = tableBody.children.length > 0;
+        };
+        updateEmptyState();
+        const observer = new MutationObserver(updateEmptyState);
+        observer.observe(tableBody, { childList: true });
+    })();
+</script>
+<script>
+    // Apply cross-page preferences saved from settings.html.
+    try {
+        const prefs = JSON.parse(localStorage.getItem("itSupportPortalSettings") || "{}");
+        document.body.style.zoom = (Number(prefs.display?.uiScale || 100)) + "%";
+        const siteName = prefs.general?.siteName;
+        const brandTitle = document.querySelector(".sidebar-logo h2");
+        if (siteName && brandTitle) brandTitle.textContent = siteName;
+        if (siteName) document.title = siteName + " | Dashboard";
+    } catch (_) { /* Use default dashboard preferences. */ }
+    </script>
+</body>
+</html>
