@@ -3,19 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Support Portal - Users</title>
+    <title>IT Support Portal - User Management</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root { --um-bg:#f4f7fb; --um-card:#fff; --um-text:#172033; --um-muted:#718096; --um-line:#e5eaf2; --um-blue:#2563eb; --um-blue-soft:#eff6ff; --um-green:#15803d; --um-green-soft:#ecfdf3; --um-red:#b91c1c; --um-red-soft:#fef2f2; --um-amber:#b45309; --um-amber-soft:#fffbeb; }
+        body.users-page { background:var(--um-bg); }
+        .users-page .main-content { min-width:0; }
+        .um-content { padding:26px; max-width:1500px; margin:0 auto; }
+        .um-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:22px; }
+        .um-heading h2 { margin:0 0 7px; color:var(--um-text); font-size:25px; }
+        .um-heading p { margin:0; color:var(--um-muted); }
+        .um-actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .um-btn { border:1px solid transparent; border-radius:9px; padding:10px 14px; font-weight:650; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:7px; transition:.15s ease; }
+        .um-btn:focus,.um-input:focus,.um-select:focus,.um-textarea:focus { outline:3px solid rgba(37,99,235,.15); border-color:var(--um-blue); }
+        .um-btn-primary { color:#fff; background:var(--um-blue); }
+        .um-btn-primary:hover { background:#1d4ed8; }
+        .um-btn-light { color:#334155; background:#fff; border-color:#dbe2ec; }
+        .um-btn-light:hover { background:#f8fafc; }
+        .um-btn-danger { color:var(--um-red); background:var(--um-red-soft); border-color:#fecaca; }
+        .um-btn-small { padding:7px 9px; font-size:12px; border-radius:7px; }
+        .um-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; margin-bottom:20px; }
+        .um-stat { background:var(--um-card); border:1px solid var(--um-line); border-radius:14px; padding:17px; box-shadow:0 3px 12px rgba(24,39,75,.035); }
+        .um-stat-top { display:flex; justify-content:space-between; align-items:center; color:var(--um-muted); font-size:13px; }
+        .um-stat-icon { width:35px; height:35px; display:grid; place-items:center; border-radius:10px; background:var(--um-blue-soft); color:var(--um-blue); font-size:17px; }
+        .um-stat strong { display:block; color:var(--um-text); font-size:27px; margin-top:9px; }
+        .um-layout { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,.85fr); gap:18px; align-items:start; }
+        .um-panel { background:var(--um-card); border:1px solid var(--um-line); border-radius:14px; box-shadow:0 3px 12px rgba(24,39,75,.035); min-width:0; }
+        .um-panel-head { padding:18px 19px; border-bottom:1px solid var(--um-line); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .um-panel-head h3 { margin:0; color:var(--um-text); font-size:16px; }
+        .um-panel-head p { margin:5px 0 0; font-size:12px; color:var(--um-muted); }
+        .um-panel-body { padding:17px 19px; }
+        .um-toolbar { display:flex; gap:9px; flex-wrap:wrap; padding:14px 18px; border-bottom:1px solid var(--um-line); }
+        .um-input,.um-select,.um-textarea { width:100%; border:1px solid #d8e0eb; border-radius:8px; padding:10px 11px; background:#fff; color:var(--um-text); font:inherit; font-size:13px; box-sizing:border-box; }
+        .um-search { flex:1 1 210px; }
+        .um-filter { flex:0 1 155px; }
+        .um-table-wrap { overflow-x:auto; }
+        .um-table { width:100%; border-collapse:collapse; min-width:760px; }
+        .um-table th { text-align:left; color:#748197; background:#fbfcfe; font-size:11px; text-transform:uppercase; letter-spacing:.045em; padding:12px 15px; border-bottom:1px solid var(--um-line); white-space:nowrap; }
+        .um-table td { padding:13px 15px; border-bottom:1px solid #edf1f6; color:#334155; font-size:12px; vertical-align:middle; }
+        .um-table tr:last-child td { border-bottom:0; }
+        .um-user-cell { display:flex; align-items:center; gap:10px; min-width:175px; }
+        .um-avatar { width:35px; height:35px; flex:0 0 35px; border-radius:11px; display:grid; place-items:center; background:#eaf1ff; color:#2455bf; font-weight:750; }
+        .um-user-name { color:#172033; font-weight:700; font-size:12px; }
+        .um-sub { display:block; color:#8792a5; font-size:11px; margin-top:3px; }
+        .um-pill { display:inline-flex; align-items:center; gap:5px; border-radius:30px; padding:5px 8px; font-size:11px; font-weight:700; white-space:nowrap; }
+        .um-pill.active { color:var(--um-green); background:var(--um-green-soft); }
+        .um-pill.inactive { color:#64748b; background:#f1f5f9; }
+        .um-pill.admin { color:#5b21b6; background:#f3e8ff; }
+        .um-pill.tech { color:#1d4ed8; background:#eff6ff; }
+        .um-pill.user { color:#475569; background:#f1f5f9; }
+        .um-row-actions { display:flex; gap:5px; }
+        .um-icon-btn { width:29px; height:29px; display:grid; place-items:center; border:1px solid var(--um-line); color:#526176; border-radius:7px; background:white; cursor:pointer; }
+        .um-icon-btn:hover { color:var(--um-blue); border-color:#9bb9f7; background:#f8fbff; }
+        .um-empty { padding:34px 15px; text-align:center; color:var(--um-muted); }
+        .um-empty strong { display:block; color:var(--um-text); margin-bottom:5px; }
+        .um-role-list { display:grid; gap:10px; }
+        .um-role-card { padding:12px; border:1px solid var(--um-line); border-radius:10px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+        .um-role-card strong { color:var(--um-text); font-size:12px; }
+        .um-role-card p { color:var(--um-muted); font-size:11px; margin:4px 0 0; line-height:1.45; }
+        .um-role-count { min-width:27px; height:27px; padding:0 7px; border-radius:8px; display:grid; place-items:center; background:#f1f5f9; font-size:12px; color:#334155; font-weight:700; }
+        .um-note { border:1px solid #f3d38a; background:#fffbeb; color:#854d0e; padding:12px 14px; border-radius:10px; font-size:12px; line-height:1.55; margin-bottom:18px; }
+        .um-test-box { background:#f8fafc; border:1px solid var(--um-line); border-radius:10px; padding:13px; }
+        .um-test-box label { display:block; color:#64748b; font-size:11px; font-weight:700; margin-bottom:7px; }
+        .um-permission-results { display:grid; gap:8px; margin-top:12px; }
+        .um-perm-result { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; background:white; border:1px solid #e8edf4; border-radius:8px; font-size:12px; color:#334155; }
+        .um-activity { display:grid; gap:12px; }
+        .um-activity-item { display:flex; gap:10px; align-items:flex-start; }
+        .um-activity-dot { width:8px; height:8px; margin-top:5px; border-radius:50%; background:#3b82f6; flex:0 0 8px; }
+        .um-activity-item p { margin:0; color:#475569; font-size:11px; line-height:1.45; }
+        .um-activity-item time { display:block; color:#94a3b8; font-size:10px; margin-top:3px; }
+        .um-modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(15,23,42,.52); z-index:9999; }
+        .um-modal.open { display:flex; }
+        .um-modal-card { width:min(760px,100%); max-height:92vh; overflow:auto; background:#fff; border-radius:15px; box-shadow:0 24px 70px rgba(0,0,0,.23); }
+        .um-modal-card.narrow { width:min(460px,100%); }
+        .um-modal-head { display:flex; align-items:center; justify-content:space-between; padding:18px 21px; border-bottom:1px solid var(--um-line); position:sticky; top:0; background:white; z-index:2; }
+        .um-modal-head h2 { color:var(--um-text); font-size:18px; margin:0; }
+        .um-close { border:0; background:#f1f5f9; border-radius:8px; width:30px; height:30px; cursor:pointer; font-size:19px; color:#475569; }
+        .um-form { padding:19px 21px 21px; }
+        .um-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+        .um-field label { display:block; color:#475569; font-weight:700; font-size:11px; margin-bottom:6px; }
+        .um-field.full { grid-column:1/-1; }
+        .um-hint { color:#8792a5; font-size:10px; margin-top:5px; line-height:1.45; }
+        .um-permissions { margin-top:18px; border:1px solid var(--um-line); border-radius:10px; overflow:hidden; }
+        .um-permissions-title { padding:12px 13px; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .um-permissions-title strong { font-size:12px; color:var(--um-text); }
+        .um-permission-grid { display:grid; grid-template-columns:1fr 1fr; }
+        .um-permission-group { padding:12px 13px; border-top:1px solid var(--um-line); }
+        .um-permission-group:nth-child(odd) { border-right:1px solid var(--um-line); }
+        .um-permission-group h4 { font-size:11px; margin:0 0 9px; color:#334155; }
+        .um-checks { display:flex; flex-wrap:wrap; gap:8px 12px; }
+        .um-check { display:inline-flex; align-items:center; gap:5px; color:#64748b; font-size:11px; cursor:pointer; }
+        .um-check input { accent-color:var(--um-blue); }
+        .um-modal-actions { display:flex; justify-content:flex-end; gap:8px; padding-top:18px; }
+        .um-toast { position:fixed; right:20px; bottom:20px; z-index:10001; padding:12px 16px; border-radius:10px; color:white; background:#172033; box-shadow:0 8px 25px rgba(0,0,0,.2); font-size:12px; display:none; max-width:min(420px,calc(100vw - 40px)); }
+        .um-toast.show { display:block; }
+        .um-credential-panel { margin-top:18px; padding:14px; border:1px solid #bfdbfe; background:#f5f9ff; border-radius:11px; }
+        .um-credential-panel h3 { margin:0 0 6px; color:#1e3a8a; font-size:13px; }
+        .um-credential-panel p { margin:0 0 11px; color:#526176; font-size:11px; line-height:1.55; }
+        .um-credential-options { display:grid; grid-template-columns:1fr 190px; gap:12px; align-items:end; }
+        .um-inline-check { display:flex; gap:8px; align-items:flex-start; color:#334155; font-size:12px; font-weight:650; }
+        .um-inline-check input { accent-color:var(--um-blue); margin-top:2px; }
+        .um-security-note { margin-top:10px; padding:9px 10px; border-radius:8px; background:#fff; border:1px solid #dbeafe; color:#475569; font-size:10px; line-height:1.5; }
+        .um-backend-state { display:inline-flex; align-items:center; gap:6px; margin-top:8px; color:#92400e; font-size:10px; font-weight:700; }
+        @media(max-width:540px) { .um-credential-options { grid-template-columns:1fr; } }
+        @media(max-width:1100px) { .um-layout { grid-template-columns:1fr; } }
+        @media(max-width:760px) { .um-content { padding:16px; } .um-heading { flex-direction:column; } .um-stats { grid-template-columns:1fr 1fr; } .um-form-grid,.um-permission-grid { grid-template-columns:1fr; } .um-permission-group:nth-child(odd) { border-right:0; } }
+        @media(max-width:420px) { .um-stats { gap:9px; } .um-stat { padding:12px; } .um-stat strong { font-size:22px; } }
+    </style>
 </head>
-<body>
+<body class="users-page">
 <div class="dashboard-container">
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-icon">IT</div>
-            <div>
-                <h2>IT Support</h2>
-                <span>Portal</span>
-            </div>
-        </div>
+        <div class="sidebar-logo"><div class="logo-icon">IT</div><div><h2>IT Support</h2><span>Portal</span></div></div>
         <nav class="sidebar-menu">
             <p class="menu-title">MAIN</p>
             <a href="dashboard.html" class="menu-item"><span class="menu-icon">▦</span><span>Dashboard</span></a>
@@ -23,30 +122,360 @@
             <a href="users.html" class="menu-item active"><span class="menu-icon">👥</span><span>Users</span></a>
             <a href="assets.html" class="menu-item"><span class="menu-icon">💻</span><span>Assets</span></a>
             <a href="remote.html" class="menu-item"><span class="menu-icon">🖥</span><span>Remote Access</span></a>
+            <a href="settings.html" class="menu-item"><span class="menu-icon">⚙️</span><span>Settings</span></a>
         </nav>
     </aside>
 
     <main class="main-content">
         <header class="top-header">
-            <div class="header-left">
-                <div>
-                    <h1>Users</h1>
-                    <p>Technicians and requesters</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <button class="logout-btn" id="logoutBtn">Logout</button>
-            </div>
+            <div class="header-left"><div><h1>User Management</h1><p>Create accounts, assign roles and review permissions</p></div></div>
+            <div class="header-right"><button class="logout-btn" id="logoutBtn">Logout</button></div>
         </header>
 
-        <section class="dashboard-content">
-            <div class="dashboard-card details-state">
-                <h3>User management is coming soon</h3>
-                <p>This page will list technicians and requesters and manage their roles. See docs/FUTURE_ENHANCEMENTS.md.</p>
+        <section class="um-content">
+            <div class="um-note"><strong>Backend connection required:</strong> This page can preview user roles locally. One-time passwords must be generated and emailed by FastAPI, stored only as a secure hash, expire after a short period, and force a password change at first login. Until the API and SMTP are connected, the page will clearly report that no email was sent.</div>
+            <div class="um-heading">
+                <div><h2>Users &amp; Permissions</h2><p>Manage administrators, technicians and requesters from one place.</p></div>
+                <div class="um-actions">
+                    <button class="um-btn um-btn-light" id="loadDemoUsersBtn" type="button">＋ Load test accounts</button>
+                    <button class="um-btn um-btn-primary" id="addUserBtn" type="button">＋ Add user</button>
+                </div>
+            </div>
+
+            <div class="um-stats">
+                <div class="um-stat"><div class="um-stat-top"><span>Total users</span><span class="um-stat-icon">👥</span></div><strong id="statTotal">0</strong></div>
+                <div class="um-stat"><div class="um-stat-top"><span>Active users</span><span class="um-stat-icon">✓</span></div><strong id="statActive">0</strong></div>
+                <div class="um-stat"><div class="um-stat-top"><span>Technicians</span><span class="um-stat-icon">🛠</span></div><strong id="statTech">0</strong></div>
+                <div class="um-stat"><div class="um-stat-top"><span>Administrators</span><span class="um-stat-icon">🛡</span></div><strong id="statAdmin">0</strong></div>
+            </div>
+
+            <div class="um-layout">
+                <section class="um-panel">
+                    <div class="um-panel-head"><div><h3>All users</h3><p>Search users and manage account status or permissions.</p></div><span class="um-pill active" id="userCountPill">0 accounts</span></div>
+                    <div class="um-toolbar">
+                        <input class="um-input um-search" type="search" id="userSearch" placeholder="Search name, username or email..." aria-label="Search users">
+                        <select class="um-select um-filter" id="roleFilter" aria-label="Filter by role"><option value="all">All roles</option><option value="Admin">Admin</option><option value="Technician">Technician</option><option value="User">User</option></select>
+                        <select class="um-select um-filter" id="statusFilter" aria-label="Filter by status"><option value="all">All statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select>
+                    </div>
+                    <div class="um-table-wrap">
+                        <table class="um-table">
+                            <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Permissions</th><th>Actions</th></tr></thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div style="display:grid;gap:18px;min-width:0">
+                    <section class="um-panel">
+                        <div class="um-panel-head"><div><h3>Role overview</h3><p>Starting permission templates. You can customize each user.</p></div></div>
+                        <div class="um-panel-body"><div class="um-role-list" id="roleOverview"></div></div>
+                    </section>
+                    <section class="um-panel">
+                        <div class="um-panel-head"><div><h3>Permission tester</h3><p>Preview what a selected profile is allowed to access.</p></div></div>
+                        <div class="um-panel-body">
+                            <div class="um-test-box"><label for="permissionTestUser">SELECT TEST USER</label><select class="um-select" id="permissionTestUser"></select><div class="um-permission-results" id="permissionResults"></div></div>
+                            <p class="um-hint">This is a UI preview only. Actual access must be checked by the FastAPI backend.</p>
+                        </div>
+                    </section>
+                    <section class="um-panel">
+                        <div class="um-panel-head"><div><h3>Recent activity</h3><p>Changes made on this browser.</p></div><button class="um-btn um-btn-light um-btn-small" id="clearActivityBtn" type="button">Clear</button></div>
+                        <div class="um-panel-body"><div class="um-activity" id="activityList"></div></div>
+                    </section>
+                </div>
             </div>
         </section>
     </main>
 </div>
+
+<!-- Add/Edit user modal -->
+<div class="um-modal" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+    <div class="um-modal-card">
+        <div class="um-modal-head"><h2 id="userModalTitle">Add user</h2><button class="um-close" type="button" data-close="userModal" aria-label="Close">×</button></div>
+        <form class="um-form" id="userForm">
+            <input type="hidden" id="editingUserId">
+            <div class="um-form-grid">
+                <div class="um-field"><label for="fullName">Full name *</label><input class="um-input" id="fullName" maxlength="80" required placeholder="e.g. Asha Patel"></div>
+                <div class="um-field"><label for="username">Username *</label><input class="um-input" id="username" maxlength="40" required pattern="[A-Za-z0-9._-]+" placeholder="e.g. asha.patel"><div class="um-hint">Letters, numbers, dots, underscores and hyphens only.</div></div>
+                <div class="um-field"><label for="userEmail">Email</label><input class="um-input" id="userEmail" type="email" maxlength="120" placeholder="name@example.com"></div>
+                <div class="um-field"><label for="userRole">Role *</label><select class="um-select" id="userRole" required><option value="Admin">Admin</option><option value="Technician">Technician</option><option value="User">User</option></select></div>
+                <div class="um-field"><label for="userStatus">Account status</label><select class="um-select" id="userStatus"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+                <div class="um-field"><label for="userDepartment">Department</label><input class="um-input" id="userDepartment" maxlength="80" placeholder="e.g. IT Support"></div>
+            </div>
+            <section class="um-credential-panel" id="credentialSetup">
+                <h3>First-login password</h3>
+                <p>FastAPI should generate a unique temporary password and email it to this user. The user must replace it immediately after the first successful login.</p>
+                <div class="um-credential-options">
+                    <label class="um-inline-check"><input type="checkbox" id="sendTempPassword" checked> Create and email a one-time password</label>
+                    <div class="um-field"><label for="tempPasswordExpiry">Temporary password expires</label><select class="um-select" id="tempPasswordExpiry"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="1440">24 hours</option></select></div>
+                </div>
+                <div class="um-security-note"><strong>Required security:</strong> single-use credential, server-side password hashing (Argon2id or bcrypt), short expiry, rate-limited login attempts, and <code>must_change_password = true</code>. Never save or log the plain password in the browser.</div>
+                <span class="um-backend-state">● Email sending activates after FastAPI + SMTP integration</span>
+            </section>
+            <div class="um-permissions">
+                <div class="um-permissions-title"><strong>Individual permissions</strong><button class="um-btn um-btn-light um-btn-small" id="resetRolePermissions" type="button">Reset to role defaults</button></div>
+                <div class="um-permission-grid" id="permissionCheckboxes"></div>
+            </div>
+            <div class="um-modal-actions"><button class="um-btn um-btn-light" type="button" data-close="userModal">Cancel</button><button class="um-btn um-btn-primary" id="saveUserBtn" type="submit">Create user &amp; send OTP</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Password reset request modal -->
+<div class="um-modal" id="passwordModal" role="dialog" aria-modal="true" aria-labelledby="passwordModalTitle">
+    <div class="um-modal-card narrow">
+        <div class="um-modal-head"><h2 id="passwordModalTitle">Password reset</h2><button class="um-close" type="button" data-close="passwordModal" aria-label="Close">×</button></div>
+        <form class="um-form" id="passwordForm">
+            <input type="hidden" id="passwordUserId">
+            <div class="um-field"><label for="resetPasswordExpiry">One-time password validity</label><select class="um-select" id="resetPasswordExpiry"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="1440">24 hours</option></select></div>
+            <p class="um-security-note">FastAPI should generate a new one-time password and send it to the user's registered email. The old temporary credential must be invalidated. The user must choose a new password at the next login. This page never displays or stores the generated password.</p>
+            <div class="um-modal-actions"><button class="um-btn um-btn-light" type="button" data-close="passwordModal">Cancel</button><button class="um-btn um-btn-primary" type="submit">Generate &amp; email one-time password</button></div>
+        </form>
+    </div>
+</div>
+<div class="um-toast" id="umToast" role="status" aria-live="polite"></div>
+
 <script src="js/app.js"></script>
+<script>
+(() => {
+    'use strict';
+    const USERS_KEY = 'it_support_users_demo_v1';
+    const ACTIVITY_KEY = 'it_support_users_activity_v1';
+    const permissionDefinitions = [
+        { key:'dashboard', label:'Dashboard', actions:[['view','View']] },
+        { key:'tickets', label:'Tickets', actions:[['view','View'],['create','Create'],['manage','Manage all']] },
+        { key:'users', label:'User management', actions:[['view','View'],['manage','Create / edit / delete']] },
+        { key:'assets', label:'Assets', actions:[['view','View'],['manage','Manage']] },
+        { key:'remote', label:'Remote access', actions:[['view','View devices'],['connect','Start permitted session']] },
+        { key:'reports', label:'Reports', actions:[['view','View / export']] },
+        { key:'settings', label:'Settings', actions:[['view','View'],['manage','Manage']] },
+        { key:'security', label:'Security', actions:[['manage','Manage security']] }
+    ];
+    const allPermissions = () => Object.fromEntries(permissionDefinitions.map(group => [group.key, Object.fromEntries(group.actions.map(([key]) => [key, false]))]));
+    const roleDefaults = {
+        Admin: Object.fromEntries(permissionDefinitions.map(group => [group.key, Object.fromEntries(group.actions.map(([key]) => [key, true]))])),
+        Technician: {
+            dashboard:{view:true}, tickets:{view:true,create:true,manage:true}, users:{view:false,manage:false},
+            assets:{view:true,manage:false}, remote:{view:true,connect:true}, reports:{view:true},
+            settings:{view:false,manage:false}, security:{manage:false}
+        },
+        User: {
+            dashboard:{view:true}, tickets:{view:true,create:true,manage:false}, users:{view:false,manage:false},
+            assets:{view:false,manage:false}, remote:{view:false,connect:false}, reports:{view:false},
+            settings:{view:false,manage:false}, security:{manage:false}
+        }
+    };
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const $ = id => document.getElementById(id);
+    let users = loadUsers();
+    let activities = loadActivities();
+
+    function normalizePermissions(input, role) {
+        const base = clone(roleDefaults[role] || roleDefaults.User);
+        if (!input || typeof input !== 'object') return base;
+        for (const group of permissionDefinitions) for (const [action] of group.actions) {
+            if (input[group.key] && typeof input[group.key][action] === 'boolean') base[group.key][action] = input[group.key][action];
+        }
+        return base;
+    }
+    function loadUsers() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+            if (!Array.isArray(saved)) return [];
+            return saved.filter(u => u && typeof u.id === 'string').map(u => ({
+                id:u.id, name:String(u.name || 'Unnamed user'), username:String(u.username || ''), email:String(u.email || ''),
+                role:['Admin','Technician','User'].includes(u.role) ? u.role : 'User', status:u.status === 'Inactive' ? 'Inactive' : 'Active',
+                department:String(u.department || ''), permissions:normalizePermissions(u.permissions, u.role), createdAt:u.createdAt || new Date().toISOString(), lastActive:u.lastActive || 'Not signed in'
+            }));
+        } catch { return []; }
+    }
+    function loadActivities() { try { const a=JSON.parse(localStorage.getItem(ACTIVITY_KEY)||'[]'); return Array.isArray(a)?a.slice(0,30):[]; } catch { return []; } }
+    function saveUsers() { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+    function saveActivities() { localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activities.slice(0,30))); }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+    function toast(message) { const el=$('umToast'); el.textContent=message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>el.classList.remove('show'),3500); }
+    async function apiPost(url, payload) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(payload)
+        });
+        let body = {};
+        try { body = await response.json(); } catch { body = {}; }
+        if (!response.ok) {
+            const message = body.detail || body.message || `Request failed (${response.status})`;
+            throw new Error(message);
+        }
+        return body;
+    }
+    function initials(name) { return String(name).trim().split(/\s+/).slice(0,2).map(p=>p[0]||'').join('').toUpperCase() || 'U'; }
+    function logActivity(message) { activities.unshift({message, at:new Date().toISOString()}); activities=activities.slice(0,30); saveActivities(); renderActivity(); }
+    function permissionCount(user) { return permissionDefinitions.reduce((sum,g)=>sum+g.actions.filter(([a])=>user.permissions[g.key]?.[a]).length,0); }
+    function renderStats() {
+        $('statTotal').textContent=users.length;
+        $('statActive').textContent=users.filter(u=>u.status==='Active').length;
+        $('statTech').textContent=users.filter(u=>u.role==='Technician').length;
+        $('statAdmin').textContent=users.filter(u=>u.role==='Admin').length;
+        $('userCountPill').textContent=`${users.length} account${users.length===1?'':'s'}`;
+    }
+    function renderUsers() {
+        const q=$('userSearch').value.trim().toLowerCase(), role=$('roleFilter').value, status=$('statusFilter').value;
+        const filtered=users.filter(u=>(!q || [u.name,u.username,u.email,u.department].some(v=>v.toLowerCase().includes(q))) && (role==='all'||u.role===role) && (status==='all'||u.status===status));
+        $('usersTableBody').innerHTML=filtered.length ? filtered.map(u=>`<tr>
+            <td><div class="um-user-cell"><span class="um-avatar">${escapeHtml(initials(u.name))}</span><span><span class="um-user-name">${escapeHtml(u.name)}</span><span class="um-sub">@${escapeHtml(u.username)}${u.email?' · '+escapeHtml(u.email):''}</span></span></div></td>
+            <td><span class="um-pill ${u.role==='Admin'?'admin':u.role==='Technician'?'tech':'user'}">${escapeHtml(u.role)}</span></td>
+            <td><span class="um-pill ${u.status==='Active'?'active':'inactive'}">● ${escapeHtml(u.status)}</span></td>
+            <td><strong>${permissionCount(u)}</strong><span class="um-sub">permissions granted</span></td>
+            <td><div class="um-row-actions"><button class="um-icon-btn" type="button" title="Edit user" aria-label="Edit ${escapeHtml(u.username)}" data-action="edit" data-id="${escapeHtml(u.id)}">✎</button><button class="um-icon-btn" type="button" title="${u.status==='Active'?'Deactivate':'Activate'} user" aria-label="Toggle status for ${escapeHtml(u.username)}" data-action="toggle" data-id="${escapeHtml(u.id)}">${u.status==='Active'?'⏸':'▶'}</button><button class="um-icon-btn" type="button" title="Password reset request" aria-label="Password reset for ${escapeHtml(u.username)}" data-action="password" data-id="${escapeHtml(u.id)}">🔑</button><button class="um-icon-btn" type="button" title="Delete user" aria-label="Delete ${escapeHtml(u.username)}" data-action="delete" data-id="${escapeHtml(u.id)}">🗑</button></div></td>
+        </tr>`).join('') : `<tr><td colspan="5"><div class="um-empty"><strong>No users found</strong>Try a different search or add a new user.</div></td></tr>`;
+        renderStats(); renderPermissionTester();
+    }
+    function renderRoles() {
+        const roles=[['Admin','Full control of every module.'],['Technician','Support tickets, assigned assets and permitted remote sessions.'],['User','Create and view their own support requests.']];
+        $('roleOverview').innerHTML=roles.map(([role,desc])=>`<div class="um-role-card"><div><strong>${role}</strong><p>${desc}</p></div><span class="um-role-count">${users.filter(u=>u.role===role).length}</span></div>`).join('');
+    }
+    function renderActivity() {
+        $('activityList').innerHTML=activities.length?activities.slice(0,8).map(a=>`<div class="um-activity-item"><span class="um-activity-dot"></span><div><p>${escapeHtml(a.message)}</p><time>${new Date(a.at).toLocaleString()}</time></div></div>`).join(''):'<div class="um-empty" style="padding:12px"><strong>No activity yet</strong>User changes will appear here.</div>';
+    }
+    function renderPermissionTester() {
+        const select=$('permissionTestUser'), previous=select.value;
+        select.innerHTML=users.map(u=>`<option value="${escapeHtml(u.id)}">${escapeHtml(u.name)} — ${escapeHtml(u.role)}</option>`).join('');
+        if(users.some(u=>u.id===previous)) select.value=previous;
+        const user=users.find(u=>u.id===select.value);
+        if(!user) { $('permissionResults').innerHTML='<div class="um-empty" style="padding:10px">Add a user to test permissions.</div>'; return; }
+        $('permissionResults').innerHTML=permissionDefinitions.map(group=>{
+            const actions=group.actions.filter(([a])=>user.permissions[group.key]?.[a]).map(([,label])=>label);
+            const granted=actions.length>0;
+            return `<div class="um-perm-result"><span>${escapeHtml(group.label)}</span><span class="um-pill ${granted?'active':'inactive'}">${granted?'Allowed':'Denied'}</span></div>`;
+        }).join('');
+    }
+    function openModal(id) { $(id).classList.add('open'); document.body.style.overflow='hidden'; }
+    function closeModal(id) { $(id).classList.remove('open'); if(!document.querySelector('.um-modal.open')) document.body.style.overflow=''; }
+    function buildPermissionCheckboxes(permissions) {
+        $('permissionCheckboxes').innerHTML=permissionDefinitions.map(group=>`<div class="um-permission-group"><h4>${escapeHtml(group.label)}</h4><div class="um-checks">${group.actions.map(([action,label])=>`<label class="um-check"><input type="checkbox" data-perm-group="${group.key}" data-perm-action="${action}" ${permissions[group.key]?.[action]?'checked':''}>${escapeHtml(label)}</label>`).join('')}</div></div>`).join('');
+    }
+    function readPermissionCheckboxes() {
+        const result=allPermissions();
+        document.querySelectorAll('[data-perm-group][data-perm-action]').forEach(input=>{ result[input.dataset.permGroup][input.dataset.permAction]=input.checked; });
+        return result;
+    }
+    function openUserEditor(user=null) {
+        $('userForm').reset();
+        $('editingUserId').value=user?.id||'';
+        $('userModalTitle').textContent=user?'Edit user':'Add user';
+        $('fullName').value=user?.name||''; $('username').value=user?.username||''; $('username').readOnly=!!user;
+        $('userEmail').value=user?.email||''; $('userRole').value=user?.role||'User'; $('userStatus').value=user?.status||'Active'; $('userDepartment').value=user?.department||'';
+        $('credentialSetup').hidden=!!user;
+        $('saveUserBtn').textContent=user?'Save changes':'Create user & send OTP';
+        $('sendTempPassword').checked=true;
+        $('tempPasswordExpiry').value='60';
+        buildPermissionCheckboxes(user?.permissions||roleDefaults[$('userRole').value]);
+        openModal('userModal');
+    }
+    function addDemoUsers() {
+        const demos=[
+            {name:'Portal Administrator',username:'admin_test',email:'admin-test@example.local',role:'Admin',department:'IT Administration'},
+            {name:'Support Technician',username:'tech_test',email:'tech-test@example.local',role:'Technician',department:'IT Support'},
+            {name:'Standard Requester',username:'user_test',email:'user-test@example.local',role:'User',department:'General'}
+        ];
+        let added=0;
+        demos.forEach(d=>{ if(!users.some(u=>u.username.toLowerCase()===d.username.toLowerCase())) { users.push({...d,id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),status:'Active',permissions:clone(roleDefaults[d.role]),createdAt:new Date().toISOString(),lastActive:'Not signed in'}); added++; } });
+        saveUsers(); renderAll();
+        if(added) { logActivity(`Added ${added} local demo test account(s).`); toast(`${added} demo account(s) added in this browser.`); }
+        else toast('The three demo accounts already exist.');
+    }
+    function renderAll() { renderUsers(); renderRoles(); renderActivity(); }
+
+    $('addUserBtn').addEventListener('click',()=>openUserEditor());
+    $('loadDemoUsersBtn').addEventListener('click',addDemoUsers);
+    ['userSearch','roleFilter','statusFilter'].forEach(id=>$(id).addEventListener(id==='userSearch'?'input':'change',renderUsers));
+    $('permissionTestUser').addEventListener('change',renderPermissionTester);
+    $('userRole').addEventListener('change',()=>buildPermissionCheckboxes(roleDefaults[$('userRole').value]));
+    $('resetRolePermissions').addEventListener('click',()=>buildPermissionCheckboxes(roleDefaults[$('userRole').value]));
+    $('usersTableBody').addEventListener('click',event=>{
+        const button=event.target.closest('[data-action]'); if(!button) return;
+        const user=users.find(u=>u.id===button.dataset.id); if(!user) return;
+        switch(button.dataset.action) {
+            case 'edit': openUserEditor(user); break;
+            case 'toggle': user.status=user.status==='Active'?'Inactive':'Active'; saveUsers(); logActivity(`${user.username} was ${user.status.toLowerCase()}.`); renderAll(); toast(`User ${user.status.toLowerCase()}.`); break;
+            case 'delete': if(confirm(`Delete ${user.username} from this browser's demo user list?`)) { users=users.filter(u=>u.id!==user.id); saveUsers(); logActivity(`${user.username} was deleted from the local demo list.`); renderAll(); toast('Demo user deleted.'); } break;
+            case 'password': $('passwordUserId').value=user.id; $('passwordForm').reset(); $('passwordUserId').value=user.id; $('resetPasswordExpiry').value='60'; $('passwordModalTitle').textContent=`One-time password — ${user.username}`; openModal('passwordModal'); break;
+        }
+    });
+    $('userForm').addEventListener('submit', async event=>{
+        event.preventDefault();
+        const id=$('editingUserId').value, username=$('username').value.trim();
+        if(users.some(u=>u.username.toLowerCase()===username.toLowerCase()&&u.id!==id)) { toast('That username already exists in this browser.'); $('username').focus(); return; }
+        const existing=users.find(u=>u.id===id);
+        const data={id:id|| (crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())),name:$('fullName').value.trim(),username,email:$('userEmail').value.trim(),role:$('userRole').value,status:$('userStatus').value,department:$('userDepartment').value.trim(),permissions:readPermissionCheckboxes(),createdAt:existing?.createdAt||new Date().toISOString(),lastActive:existing?.lastActive||'Not signed in'};
+
+        if (existing) {
+            Object.assign(existing,data);
+            saveUsers(); logActivity(`Updated ${data.username}: role or account details changed.`);
+            closeModal('userModal'); renderAll(); toast('User updated in this browser only.');
+            return;
+        }
+
+        const wantsOtp=$('sendTempPassword').checked;
+        if (wantsOtp && !data.email) { toast('Enter the user email address to send a one-time password.'); $('userEmail').focus(); return; }
+
+        // Expected FastAPI contract: POST /api/admin/users creates the account,
+        // stores a password hash only, generates a one-time password, emails it,
+        // and sets must_change_password=true. No plaintext password is returned.
+        try {
+            const result = await apiPost('/api/admin/users', {
+                ...data,
+                send_temporary_password: wantsOtp,
+                temporary_password_expires_minutes: Number($('tempPasswordExpiry').value),
+                must_change_password: true
+            });
+            const serverUser = result.user || result;
+            const saved = {
+                ...data,
+                id: String(serverUser.id || data.id),
+                invitationStatus: result.invitation_sent ? 'Sent' : (wantsOtp ? 'Not sent' : 'Not requested')
+            };
+            users.push(saved); saveUsers();
+            logActivity(`Created ${data.username} through the server. ${result.invitation_sent ? 'One-time password email sent.' : 'Invitation status needs checking.'}`);
+            closeModal('userModal'); renderAll();
+            toast(result.invitation_sent ? 'User created. One-time password emailed; change required at first login.' : 'User created, but the server did not confirm that the email was sent.');
+        } catch (error) {
+            // Explicit demo fallback: never claim an account or email was created on the server.
+            users.push({...data, invitationStatus:wantsOtp?'Not sent - backend not connected':'Demo only'});
+            saveUsers();
+            logActivity(`Created local demo user ${data.username}. No server account or one-time password email was created.`);
+            closeModal('userModal'); renderAll();
+            toast(`Demo user saved only. OTP NOT sent: ${error.message}. Connect the FastAPI endpoint and SMTP.`);
+        }
+    });
+    $('passwordForm').addEventListener('submit', async event=>{
+        event.preventDefault();
+        const user=users.find(u=>u.id===$('passwordUserId').value);
+        if(!user) { toast('User not found.'); return; }
+        try {
+            const result = await apiPost(`/api/admin/users/${encodeURIComponent(user.id)}/temporary-password`, {
+                expires_in_minutes: Number($('resetPasswordExpiry').value),
+                must_change_password: true,
+                deliver_via_email: true
+            });
+            user.invitationStatus = result.email_sent ? 'Password email sent' : 'Email not confirmed';
+            saveUsers();
+            logActivity(`Requested a new one-time password for ${user.username}; server email status: ${result.email_sent ? 'sent' : 'not confirmed'}.`);
+            closeModal('passwordModal'); renderAll();
+            toast(result.email_sent ? 'One-time password emailed. User must change it after login.' : 'Server did not confirm email delivery.');
+        } catch (error) {
+            closeModal('passwordModal');
+            logActivity(`Password reset for ${user.username} was not sent: backend endpoint unavailable.`);
+            toast(`No password was generated or emailed. FastAPI endpoint/SMTP is not connected: ${error.message}`);
+        }
+    });
+    $('clearActivityBtn').addEventListener('click',()=>{ if(confirm('Clear local activity history?')) { activities=[]; saveActivities(); renderActivity(); toast('Activity history cleared.'); } });
+    document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>closeModal(button.dataset.close)));
+    document.querySelectorAll('.um-modal').forEach(modal=>modal.addEventListener('click',event=>{ if(event.target===modal) closeModal(modal.id); }));
+    document.addEventListener('keydown',event=>{ if(event.key==='Escape') document.querySelectorAll('.um-modal.open').forEach(modal=>closeModal(modal.id)); });
+
+    renderAll();
+})();
+</script>
 </body>
 </html>
